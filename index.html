@@ -70,15 +70,7 @@
             margin-bottom: 15px;
         }
 
-        .form-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        input, select {
-            flex: 1;
-            min-width: 160px;
+        select, input {
             background: #0b1329;
             border: 1px solid var(--card-border);
             color: var(--text-main);
@@ -88,23 +80,8 @@
             outline: none;
         }
 
-        input:focus, select:focus {
+        select:focus, input:focus {
             border-color: var(--accent);
-        }
-
-        button {
-            background: var(--accent);
-            border: none;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: #2563eb;
         }
 
         .filter-bar {
@@ -112,6 +89,11 @@
             gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+
+        .filter-bar select, .filter-bar input {
+            flex: 1;
+            min-width: 180px;
         }
 
         .table-responsive {
@@ -177,21 +159,6 @@
             margin-left: 6px;
         }
 
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            cursor: pointer;
-        }
-
-        .delete-btn:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
         .empty-row {
             text-align: center;
             color: var(--text-muted);
@@ -205,22 +172,6 @@
     <div class="header">
         <h1>TV Kapellen 1919 e.V.</h1>
         <h2>Liga-Spieler & Passnummern (Saison 2026/2027)</h2>
-    </div>
-
-    <!-- Neuer Spieler Hinzufügen -->
-    <div class="card">
-        <h3>➕ Neuen Spieler erfassen</h3>
-        <div class="form-group">
-            <select id="playerTeam">
-                <option value="TV Kapellen 3">TV Kapellen 3</option>
-                <option value="TV Kapellen 1">TV Kapellen 1</option>
-                <option value="TV Kapellen 2">TV Kapellen 2</option>
-                <option value="TV Kapellen 4">TV Kapellen 4</option>
-            </select>
-            <input type="text" id="playerName" placeholder="Vor- und Nachname (ggf. mit TC)...">
-            <input type="text" id="playerPass" placeholder="Pass-Nummer..." onkeydown="if(event.key === 'Enter') addPlayer()">
-            <button onclick="addPlayer()">Hinzufügen</button>
-        </div>
     </div>
 
     <!-- Kader-Übersicht & Filter -->
@@ -252,7 +203,7 @@
 
 <script>
     const INITIAL_PLAYERS = [
-        // TV Kapellen 3
+        // TV Kapellen 3 (inkl. Florian Hartwich)
         { team: "TV Kapellen 3", name: "Jürgen Schützendorf TC", pass: "24129" },
         { team: "TV Kapellen 3", name: "Wolfram Senger", pass: "21071" },
         { team: "TV Kapellen 3", name: "Michael Müller", pass: "25252" },
@@ -305,86 +256,26 @@
 
     const TEAM_ORDER = ["TV Kapellen 3", "TV Kapellen 1", "TV Kapellen 2", "TV Kapellen 4"];
 
-    function getPlayers() {
-        const stored = localStorage.getItem("tvk_liga_spieler_full_v3");
-        if (!stored) {
-            localStorage.setItem("tvk_liga_spieler_full_v3", JSON.stringify(INITIAL_PLAYERS));
-            return INITIAL_PLAYERS;
-        }
-        return JSON.parse(stored);
-    }
-
-    function savePlayers(players) {
-        localStorage.setItem("tvk_liga_spieler_full_v3", JSON.stringify(players));
-    }
-
-    function addPlayer() {
-        const teamSelect = document.getElementById("playerTeam");
-        const nameInput = document.getElementById("playerName");
-        const passInput = document.getElementById("playerPass");
-
-        const team = teamSelect.value;
-        const name = nameInput.value.trim();
-        const pass = passInput.value.trim();
-
-        if (!name) {
-            alert("Bitte gib einen Spielernamen ein.");
-            return;
-        }
-
-        let players = getPlayers();
-        players.push({ team: team, name: name, pass: pass !== "" ? pass : "—" });
-        
-        savePlayers(players);
-
-        nameInput.value = "";
-        passInput.value = "";
-        nameInput.focus();
-
-        renderApp();
-    }
-
-    function deletePlayer(globalIndex) {
-        let players = getPlayers();
-        if (confirm(`Möchtest du "${players[globalIndex].name}" wirklich löschen?`)) {
-            players.splice(globalIndex, 1);
-            savePlayers(players);
-            renderApp();
-        }
-    }
-
     function renderApp() {
         const container = document.getElementById("teamsContainer");
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
         const teamFilter = document.getElementById("teamFilter").value;
         const countSpan = document.getElementById("playerCount");
 
-        let players = getPlayers();
-        countSpan.textContent = `${players.length} Spieler insgesamt`;
-
+        countSpan.textContent = `${INITIAL_PLAYERS.length} Spieler insgesamt`;
         container.innerHTML = "";
 
-        // Bestimme, welche Teams angezeigt werden sollen (entweder alle oder nur das ausgewählte)
         let activeTeams = teamFilter === "ALL" ? TEAM_ORDER : [teamFilter];
 
         activeTeams.forEach(teamName => {
-            let teamPlayers = players.map((p, idx) => ({ ...p, originalIndex: idx })).filter(p => {
+            let teamPlayers = INITIAL_PLAYERS.filter(p => {
                 const matchesTeam = p.team === teamName;
                 const matchesSearch = p.name.toLowerCase().includes(searchInput) || p.pass.toLowerCase().includes(searchInput);
                 return matchesTeam && matchesSearch;
             });
 
-            if (teamPlayers.length === 0 && searchInput !== "" && teamFilter !== "ALL") {
-                container.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">Keine Treffer gefunden.</div>`;
-                return;
-            }
-
-            if (teamPlayers.length === 0 && teamFilter !== "ALL") {
-                // Zeige auch ein leeres Team an, wenn es explizit ausgewählt wurde, damit man Spieler hinzufügen kann
-                teamPlayers = [];
-            } else if (teamPlayers.length === 0 && teamFilter === "ALL" && searchInput !== "") {
-                return;
-            }
+            if (teamPlayers.length === 0 && searchInput !== "" && teamFilter !== "ALL") return;
+            if (teamPlayers.length === 0 && teamFilter === "ALL" && searchInput !== "") return;
 
             let html = `
                 <div class="team-title">
@@ -396,16 +287,15 @@
                         <thead>
                             <tr>
                                 <th style="width: 10%; text-align: center;">#</th>
-                                <th style="width: 45%;">Spielername</th>
-                                <th style="width: 30%;">Pass-Nummer</th>
-                                <th style="width: 15%; text-align: center;">Aktion</th>
+                                <th style="width: 55%;">Spielername</th>
+                                <th style="width: 35%;">Pass-Nummer</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
             if (teamPlayers.length === 0) {
-                html += `<tr><td colspan="4" class="empty-row">Keine Spieler in diesem Team vorhanden.</td></tr>`;
+                html += `<tr><td colspan="3" class="empty-row">Keine Spieler gefunden.</td></tr>`;
             } else {
                 teamPlayers.forEach((p, index) => {
                     let displayName = p.name;
@@ -418,9 +308,6 @@
                             <td style="text-align: center; color: var(--accent-gold); font-weight: bold;">${index + 1}</td>
                             <td style="font-weight: bold;">${displayName}</td>
                             <td style="color: var(--accent-gold); font-family: monospace;">${p.pass}</td>
-                            <td style="text-align: center;">
-                                <button class="delete-btn" onclick="deletePlayer(${p.originalIndex})">Löschen</button>
-                            </td>
                         </tr>
                     `;
                 });
