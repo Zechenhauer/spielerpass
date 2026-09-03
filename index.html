@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Kapellen 1919 e.V. — Liga-Spieler & Passnummern</title>
+    <style>
+        :root {
+            --bg-color: #0b1329;
+            --card-bg: #162238;
+            --card-border: #23334d;
+            --accent: #3b82f6;
+            --accent-gold: #eab308;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: #ffffff;
+        }
+
+        .header h2 {
+            margin: 5px 0 0 0;
+            font-size: 1rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            flex: 1;
+            min-width: 160px;
+            background: #0b1329;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            background: #0d172a;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .team-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            margin: 20px 0 10px 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tc-badge {
+            background: rgba(234, 179, 8, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .empty-row {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 15px !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>TV Kapellen 1919 e.V.</h1>
+        <h2>Liga-Spieler & Passnummern (Saison 2026/2027)</h2>
+    </div>
+
+    <!-- Neuer Spieler Hinzufügen -->
+    <div class="card">
+        <h3>➕ Neuen Spieler erfassen</h3>
+        <div class="form-group">
+            <select id="playerTeam">
+                <option value="TV Kapellen 3">TV Kapellen 3</option>
+                <option value="TV Kapellen 1">TV Kapellen 1</option>
+                <option value="TV Kapellen 2">TV Kapellen 2</option>
+                <option value="TV Kapellen 4">TV Kapellen 4</option>
+            </select>
+            <input type="text" id="playerName" placeholder="Vor- und Nachname (ggf. mit TC)...">
+            <input type="text" id="playerPass" placeholder="Pass-Nummer..." onkeydown="if(event.key === 'Enter') addPlayer()">
+            <button onclick="addPlayer()">Hinzufügen</button>
+        </div>
+    </div>
+
+    <!-- Kader-Übersicht -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            <h3 style="margin: 0;">📋 Vereins-Kader nach Mannschaften</h3>
+            <span id="playerCount" style="font-size: 0.85rem; color: var(--text-muted);">0 Spieler erfasst</span>
+        </div>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Spieler oder Passnummer durchsuchen..." oninput="renderApp()">
+
+        <div id="teamsContainer">
+            <!-- Wird dynamisch nach Teams gruppiert ausgegeben -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ursprüngliche Kaderliste mit TV Kapellen 3 an erster Stelle
+    const INITIAL_PLAYERS = [
+        // TV Kapellen 3
+        { team: "TV Kapellen 3", name: "Jürgen Schützendorf TC 1", pass: "24129" },
+        { team: "TV Kapellen 3", name: "Wolfram Senger", pass: "21071" },
+        { team: "TV Kapellen 3", name: "Michael Müller", pass: "25252" },
+        { team: "TV Kapellen 3", name: "Ludger Schledorn", pass: "22366" },
+        { team: "TV Kapellen 3", name: "Markus Ginsel TC 2", pass: "22356" },
+        { team: "TV Kapellen 3", name: "Niklas Weichert", pass: "23680" },
+        { team: "TV Kapellen 3", name: "Thomas Kliver", pass: "22371" },
+        { team: "TV Kapellen 3", name: "Lars Neutag", pass: "23240" },
+        { team: "TV Kapellen 3", name: "Markus Lenz", pass: "22369" },
+        { team: "TV Kapellen 3", name: "Andreas Denner", pass: "21556" },
+
+        // TV Kapellen 1
+        { team: "TV Kapellen 1", name: "Joel Wielinski", pass: "24540" },
+        { team: "TV Kapellen 1", name: "Jan Krabbe", pass: "24151" },
+        { team: "TV Kapellen 1", name: "Dominik Helmke", pass: "24132" },
+        { team: "TV Kapellen 1", name: "Denis Vanzidler", pass: "24541" },
+        { team: "TV Kapellen 1", name: "Tim Siegel", pass: "23678" },
+        { team: "TV Kapellen 1", name: "Patrik Seitz TC 1", pass: "23102" },
+        { team: "TV Kapellen 1", name: "Robert Geyer", pass: "22355" },
+        { team: "TV Kapellen 1", name: "Fabio Padovano", pass: "24131" },
+        { team: "TV Kapellen 1", name: "Dirk Kraus", pass: "16239" },
+        { team: "TV Kapellen 1", name: "Stefan Melcher TC 2", pass: "21374" },
+        { team: "TV Kapellen 1", name: "Sascha Bien", pass: "22352" },
+
+        // TV Kapellen 2
+        { team: "TV Kapellen 2", name: "Dominik Herz", pass: "22741" },
+        { team: "TV Kapellen 2", name: "Daniel Simanowitz", pass: "23011" },
+        { team: "TV Kapellen 2", name: "Thomas Franzen TC 2", pass: "22859" },
+        { team: "TV Kapellen 2", name: "Markus Elgersma", pass: "22354" },
+        { team: "TV Kapellen 2", name: "Holger Weberpold", pass: "22350" },
+        { team: "TV Kapellen 2", name: "Danny Voß", pass: "24758" },
+        { team: "TV Kapellen 2", name: "Markus Thiele", pass: "22363" },
+        { team: "TV Kapellen 2", name: "Philip Möller TC 1", pass: "22743" },
+        { team: "TV Kapellen 2", name: "Christian Schreiber", pass: "15653" },
+
+        // TV Kapellen 4
+        { team: "TV Kapellen 4", name: "Friedhelm Schmidt-Cremer", pass: "23676" },
+        { team: "TV Kapellen 4", name: "Scott Jonen", pass: "23672" },
+        { team: "TV Kapellen 4", name: "Britta Roghmans TC 1", pass: "22365" },
+        { team: "TV Kapellen 4", name: "Dirk Grunert", pass: "22362" },
+        { team: "TV Kapellen 4", name: "Mark Bock", pass: "22361" },
+        { team: "TV Kapellen 4", name: "Leon Overmann", pass: "25251" },
+        { team: "TV Kapellen 4", name: "Brian Müller", pass: "25250" },
+        { team: "TV Kapellen 4", name: "Jesper Neutag", pass: "22129" },
+        { team: "TV Kapellen 4", name: "Björn Mentzen TC 2", pass: "23674" },
+        { team: "TV Kapellen 4", name: "Lucas Mentzen", pass: "23675" },
+        { team: "TV Kapellen 4", name: "Lars Hufen", pass: "22357" }
+    ];
+
+    const TEAM_ORDER = ["TV Kapellen 3", "TV Kapellen 1", "TV Kapellen 2", "TV Kapellen 4"];
+
+    function getPlayers() {
+        const stored = localStorage.getItem("tvk_liga_spieler_full");
+        if (!stored) {
+            localStorage.setItem("tvk_liga_spieler_full", JSON.stringify(INITIAL_PLAYERS));
+            return INITIAL_PLAYERS;
+        }
+        return JSON.parse(stored);
+    }
+
+    function savePlayers(players) {
+        localStorage.setItem("tvk_liga_spieler_full", JSON.stringify(players));
+    }
+
+    function addPlayer() {
+        const teamSelect = document.getElementById("playerTeam");
+        const nameInput = document.getElementById("playerName");
+        const passInput = document.getElementById("playerPass");
+
+        const team = teamSelect.value;
+        const name = nameInput.value.trim();
+        const pass = passInput.value.trim();
+
+        if (!name) {
+            alert("Bitte gib einen Spielernamen ein.");
+            return;
+        }
+
+        let players = getPlayers();
+        players.push({ team: team, name: name, pass: pass !== "" ? pass : "—" });
+        
+        savePlayers(players);
+
+        nameInput.value = "";
+        passInput.value = "";
+        nameInput.focus();
+
+        renderApp();
+    }
+
+    function deletePlayer(globalIndex) {
+        let players = getPlayers();
+        if (confirm(`Möchtest du "${players[globalIndex].name}" wirklich löschen?`)) {
+            players.splice(globalIndex, 1);
+            savePlayers(players);
+            renderApp();
+        }
+    }
+
+    function renderApp() {
+        const container = document.getElementById("teamsContainer");
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const countSpan = document.getElementById("playerCount");
+
+        let players = getPlayers();
+        countSpan.textContent = `${players.length} Spieler insgesamt`;
+
+        container.innerHTML = "";
+
+        TEAM_ORDER.forEach(teamName => {
+            // Filtere Spieler für das jeweilige Team und nach Suchbegriff
+            let teamPlayers = players.map((p, idx) => ({ ...p, originalIndex: idx })).filter(p => {
+                const matchesTeam = p.team === teamName;
+                const matchesSearch = p.name.toLowerCase().includes(searchInput) || p.pass.toLowerCase().includes(searchInput);
+                return matchesTeam && matchesSearch;
+            });
+
+            // Wenn durch die Suche ein Team leer ist und eine Suche aktiv ist, überspringen
+            if (teamPlayers.length === 0 && searchInput !== "") return;
+
+            let html = `
+                <div class="team-title">🎯 ${teamName}</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Spielername</th>
+                                <th style="width: 35%;">Pass-Nummer</th>
+                                <th style="width: 15%; text-align: center;">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            if (teamPlayers.length === 0) {
+                html += `<tr><td colspan="3" class="empty-row">Keine Spieler in diesem Team gefunden.</td></tr>`;
+            } else {
+                teamPlayers.forEach(p => {
+                    // Markierung für Team Captain (TC)
+                    let displayName = p.name;
+                    if (displayName.includes("TC")) {
+                        displayName = displayName.replace("TC", '<span class="tc-badge">TC</span>');
+                    }
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${displayName}</td>
+                            <td style="color: var(--accent-gold); font-family: monospace;">${p.pass}</td>
+                            <td style="text-align: center;">
+                                <button class="delete-btn" onclick="deletePlayer(${p.originalIndex})">Löschen</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `</tbody></table></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    // Initiales Laden
+    renderApp();
+</script>
+
+</body>
+</html>
