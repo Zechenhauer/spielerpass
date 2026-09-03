@@ -299,8 +299,11 @@
             } else {
                 teamPlayers.forEach((p, index) => {
                     let displayName = p.name;
+                    // Überprüfen, ob TC im Namen vorkommt, und das Badge inklusive Nummer sauber abbilden
                     if (displayName.includes("TC")) {
-                        displayName = displayName.replace(/TC\s*\d*/g, '').trim() + ' <span class="tc-badge">TC</span>';
+                        let tcMatch = displayName.match(/TC\s*\d*/);
+                        let tcText = tcMatch ? tcMatch[0] : "TC";
+                        displayName = displayName.replace(/TC\s*\d*/g, '').trim() + ` <span class="tc-badge">${tcText}</span>`;
                     }
 
                     html += `
