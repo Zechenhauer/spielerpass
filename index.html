@@ -107,6 +107,13 @@
             background: #2563eb;
         }
 
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
         .table-responsive {
             overflow-x: auto;
             border-radius: 8px;
@@ -146,7 +153,17 @@
             margin: 20px 0 10px 5px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .team-count-badge {
+            font-size: 0.75rem;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: normal;
         }
 
         .tc-badge {
@@ -157,6 +174,7 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
+            margin-left: 6px;
         }
 
         .delete-btn {
@@ -172,11 +190,6 @@
         .delete-btn:hover {
             background: var(--danger);
             color: #fff;
-        }
-
-        .search-box {
-            margin-bottom: 15px;
-            width: 100%;
         }
 
         .empty-row {
@@ -210,30 +223,41 @@
         </div>
     </div>
 
-    <!-- Kader-Übersicht -->
+    <!-- Kader-Übersicht & Filter -->
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-            <h3 style="margin: 0;">📋 Vereins-Kader nach Mannschaften</h3>
-            <span id="playerCount" style="font-size: 0.85rem; color: var(--text-muted);">0 Spieler erfasst</span>
+            <h3 style="margin: 0;">📋 Vereins-Kader</h3>
+            <span id="playerCount" style="font-size: 0.85rem; color: var(--text-muted);">0 Spieler insgesamt</span>
         </div>
 
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Spieler oder Passnummer durchsuchen..." oninput="renderApp()">
+        <div class="filter-bar">
+            <!-- Dropdown Menü zum Filtern nach Mannschaft -->
+            <select id="teamFilter" onchange="renderApp()">
+                <option value="ALL">🎯 Alle Mannschaften anzeigen</option>
+                <option value="TV Kapellen 3">TV Kapellen 3</option>
+                <option value="TV Kapellen 1">TV Kapellen 1</option>
+                <option value="TV Kapellen 2">TV Kapellen 2</option>
+                <option value="TV Kapellen 4">TV Kapellen 4</option>
+            </select>
+
+            <!-- Suchfeld -->
+            <input type="text" id="searchInput" placeholder="🔍 Spieler oder Passnummer suchen..." oninput="renderApp()">
+        </div>
 
         <div id="teamsContainer">
-            <!-- Wird dynamisch nach Teams gruppiert ausgegeben -->
+            <!-- Wird dynamisch ausgegeben -->
         </div>
     </div>
 </div>
 
 <script>
-    // Ursprüngliche Kaderliste mit TV Kapellen 3 an erster Stelle
     const INITIAL_PLAYERS = [
         // TV Kapellen 3
-        { team: "TV Kapellen 3", name: "Jürgen Schützendorf TC 1", pass: "24129" },
+        { team: "TV Kapellen 3", name: "Jürgen Schützendorf TC", pass: "24129" },
         { team: "TV Kapellen 3", name: "Wolfram Senger", pass: "21071" },
         { team: "TV Kapellen 3", name: "Michael Müller", pass: "25252" },
         { team: "TV Kapellen 3", name: "Ludger Schledorn", pass: "22366" },
-        { team: "TV Kapellen 3", name: "Markus Ginsel TC 2", pass: "22356" },
+        { team: "TV Kapellen 3", name: "Markus Ginsel TC", pass: "22356" },
         { team: "TV Kapellen 3", name: "Niklas Weichert", pass: "23680" },
         { team: "TV Kapellen 3", name: "Thomas Kliver", pass: "22371" },
         { team: "TV Kapellen 3", name: "Lars Neutag", pass: "23240" },
@@ -246,34 +270,34 @@
         { team: "TV Kapellen 1", name: "Dominik Helmke", pass: "24132" },
         { team: "TV Kapellen 1", name: "Denis Vanzidler", pass: "24541" },
         { team: "TV Kapellen 1", name: "Tim Siegel", pass: "23678" },
-        { team: "TV Kapellen 1", name: "Patrik Seitz TC 1", pass: "23102" },
+        { team: "TV Kapellen 1", name: "Patrik Seitz TC", pass: "23102" },
         { team: "TV Kapellen 1", name: "Robert Geyer", pass: "22355" },
         { team: "TV Kapellen 1", name: "Fabio Padovano", pass: "24131" },
         { team: "TV Kapellen 1", name: "Dirk Kraus", pass: "16239" },
-        { team: "TV Kapellen 1", name: "Stefan Melcher TC 2", pass: "21374" },
+        { team: "TV Kapellen 1", name: "Stefan Melcher TC", pass: "21374" },
         { team: "TV Kapellen 1", name: "Sascha Bien", pass: "22352" },
 
         // TV Kapellen 2
         { team: "TV Kapellen 2", name: "Dominik Herz", pass: "22741" },
         { team: "TV Kapellen 2", name: "Daniel Simanowitz", pass: "23011" },
-        { team: "TV Kapellen 2", name: "Thomas Franzen TC 2", pass: "22859" },
+        { team: "TV Kapellen 2", name: "Thomas Franzen TC", pass: "22859" },
         { team: "TV Kapellen 2", name: "Markus Elgersma", pass: "22354" },
         { team: "TV Kapellen 2", name: "Holger Weberpold", pass: "22350" },
         { team: "TV Kapellen 2", name: "Danny Voß", pass: "24758" },
         { team: "TV Kapellen 2", name: "Markus Thiele", pass: "22363" },
-        { team: "TV Kapellen 2", name: "Philip Möller TC 1", pass: "22743" },
+        { team: "TV Kapellen 2", name: "Philip Möller TC", pass: "22743" },
         { team: "TV Kapellen 2", name: "Christian Schreiber", pass: "15653" },
 
         // TV Kapellen 4
         { team: "TV Kapellen 4", name: "Friedhelm Schmidt-Cremer", pass: "23676" },
         { team: "TV Kapellen 4", name: "Scott Jonen", pass: "23672" },
-        { team: "TV Kapellen 4", name: "Britta Roghmans TC 1", pass: "22365" },
+        { team: "TV Kapellen 4", name: "Britta Roghmans TC", pass: "22365" },
         { team: "TV Kapellen 4", name: "Dirk Grunert", pass: "22362" },
         { team: "TV Kapellen 4", name: "Mark Bock", pass: "22361" },
         { team: "TV Kapellen 4", name: "Leon Overmann", pass: "25251" },
         { team: "TV Kapellen 4", name: "Brian Müller", pass: "25250" },
         { team: "TV Kapellen 4", name: "Jesper Neutag", pass: "22129" },
-        { team: "TV Kapellen 4", name: "Björn Mentzen TC 2", pass: "23674" },
+        { team: "TV Kapellen 4", name: "Björn Mentzen TC", pass: "23674" },
         { team: "TV Kapellen 4", name: "Lucas Mentzen", pass: "23675" },
         { team: "TV Kapellen 4", name: "Lars Hufen", pass: "22357" }
     ];
@@ -281,16 +305,16 @@
     const TEAM_ORDER = ["TV Kapellen 3", "TV Kapellen 1", "TV Kapellen 2", "TV Kapellen 4"];
 
     function getPlayers() {
-        const stored = localStorage.getItem("tvk_liga_spieler_full");
+        const stored = localStorage.getItem("tvk_liga_spieler_full_v3");
         if (!stored) {
-            localStorage.setItem("tvk_liga_spieler_full", JSON.stringify(INITIAL_PLAYERS));
+            localStorage.setItem("tvk_liga_spieler_full_v3", JSON.stringify(INITIAL_PLAYERS));
             return INITIAL_PLAYERS;
         }
         return JSON.parse(stored);
     }
 
     function savePlayers(players) {
-        localStorage.setItem("tvk_liga_spieler_full", JSON.stringify(players));
+        localStorage.setItem("tvk_liga_spieler_full_v3", JSON.stringify(players));
     }
 
     function addPlayer() {
@@ -331,6 +355,7 @@
     function renderApp() {
         const container = document.getElementById("teamsContainer");
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const teamFilter = document.getElementById("teamFilter").value;
         const countSpan = document.getElementById("playerCount");
 
         let players = getPlayers();
@@ -338,25 +363,40 @@
 
         container.innerHTML = "";
 
-        TEAM_ORDER.forEach(teamName => {
-            // Filtere Spieler für das jeweilige Team und nach Suchbegriff
+        // Bestimme, welche Teams angezeigt werden sollen (entweder alle oder nur das ausgewählte)
+        let activeTeams = teamFilter === "ALL" ? TEAM_ORDER : [teamFilter];
+
+        activeTeams.forEach(teamName => {
             let teamPlayers = players.map((p, idx) => ({ ...p, originalIndex: idx })).filter(p => {
                 const matchesTeam = p.team === teamName;
                 const matchesSearch = p.name.toLowerCase().includes(searchInput) || p.pass.toLowerCase().includes(searchInput);
                 return matchesTeam && matchesSearch;
             });
 
-            // Wenn durch die Suche ein Team leer ist und eine Suche aktiv ist, überspringen
-            if (teamPlayers.length === 0 && searchInput !== "") return;
+            if (teamPlayers.length === 0 && searchInput !== "" && teamFilter !== "ALL") {
+                container.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">Keine Treffer gefunden.</div>`;
+                return;
+            }
+
+            if (teamPlayers.length === 0 && teamFilter !== "ALL") {
+                // Zeige auch ein leeres Team an, wenn es explizit ausgewählt wurde, damit man Spieler hinzufügen kann
+                teamPlayers = [];
+            } else if (teamPlayers.length === 0 && teamFilter === "ALL" && searchInput !== "") {
+                return;
+            }
 
             let html = `
-                <div class="team-title">🎯 ${teamName}</div>
+                <div class="team-title">
+                    <span>🎯 ${teamName}</span>
+                    <span class="team-count-badge">${teamPlayers.length} Spieler</span>
+                </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 50%;">Spielername</th>
-                                <th style="width: 35%;">Pass-Nummer</th>
+                                <th style="width: 10%; text-align: center;">#</th>
+                                <th style="width: 45%;">Spielername</th>
+                                <th style="width: 30%;">Pass-Nummer</th>
                                 <th style="width: 15%; text-align: center;">Aktion</th>
                             </tr>
                         </thead>
@@ -364,17 +404,17 @@
             `;
 
             if (teamPlayers.length === 0) {
-                html += `<tr><td colspan="3" class="empty-row">Keine Spieler in diesem Team gefunden.</td></tr>`;
+                html += `<tr><td colspan="4" class="empty-row">Keine Spieler in diesem Team vorhanden.</td></tr>`;
             } else {
-                teamPlayers.forEach(p => {
-                    // Markierung für Team Captain (TC)
+                teamPlayers.forEach((p, index) => {
                     let displayName = p.name;
                     if (displayName.includes("TC")) {
-                        displayName = displayName.replace("TC", '<span class="tc-badge">TC</span>');
+                        displayName = displayName.replace(/TC\s*\d*/g, '').trim() + ' <span class="tc-badge">TC</span>';
                     }
 
                     html += `
                         <tr>
+                            <td style="text-align: center; color: var(--accent-gold); font-weight: bold;">${index + 1}</td>
                             <td style="font-weight: bold;">${displayName}</td>
                             <td style="color: var(--accent-gold); font-family: monospace;">${p.pass}</td>
                             <td style="text-align: center;">
@@ -390,7 +430,6 @@
         });
     }
 
-    // Initiales Laden
     renderApp();
 </script>
 
